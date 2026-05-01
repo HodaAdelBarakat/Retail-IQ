@@ -128,6 +128,8 @@ def calculate_kpis(df: pd.DataFrame) -> dict:
     total_sales  = float(df["Sales"].sum())
     total_profit = float(df["Profit"].sum())
     total_orders = int(df["Order ID"].nunique()) if "Order ID" in df.columns else len(df)
+    total_cost = total_sales - total_profit
+    cost_to_sales_ratio = safe_divide(total_cost, total_sales) * 100
 
     if "Order Date" in df.columns:
         date_range_days = max((df["Order Date"].max() - df["Order Date"].min()).days, 1)
@@ -138,7 +140,8 @@ def calculate_kpis(df: pd.DataFrame) -> dict:
     kpis = {
         "Total Sales":          total_sales,
         "Total Profit":         total_profit,
-        "COGS":                 float(total_sales - total_profit),
+        "Total Cost (COGS)":    total_cost, 
+        "Cost to Sales Ratio":  cost_to_sales_ratio,
         "Profit Margin":        safe_divide(total_profit, total_sales),
         "Average Order Value":  safe_divide(total_sales, total_orders),
         "Total Orders":         total_orders,
