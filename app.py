@@ -113,22 +113,34 @@ with t1:
     st.markdown(f"### {'📈 النبض التنفيذي والمؤشرات الرئيسية' if is_ar else '📈 Executive Pulse & KPIs'}")
     st.info("💡 **لوحة القيادة:** نظرة عامة سريعة على صحة أعمالك المالية، موقف الضرائب، وأفضل وأسوأ العناصر المؤثرة على الإيرادات." if is_ar else "💡 **Dashboard:** A quick overview of your financial health, tax standing, and top/worst revenue drivers.")
     
+    t_sales = kpis.get("Total Sales", 0)
+    t_profit = kpis.get("Total Profit", 0)
+    t_cost = t_sales - t_profit
+    cost_ratio = (t_cost / t_sales * 100) if t_sales > 0 else 0
     # ----------------------------------------------------
     # 1. المؤشرات المالية والضريبية (KPIs)
     # ----------------------------------------------------
     st.markdown(f"#### {'💰 المؤشرات المالية الأساسية' if is_ar else '💰 Core Financials'}")
     c1, c2, c3, c4 = st.columns(4)
     c1.metric("إجمالي المبيعات" if is_ar else "Total Sales", format_currency(kpis.get("Total Sales", 0)))
-    c2.metric("إجمالي الأرباح" if is_ar else "Total Profit", format_currency(kpis.get("Total Profit", 0)))
-    c3.metric("هامش الربح" if is_ar else "Profit Margin", format_percentage(kpis.get("Profit Margin", 0)))
-    c4.metric("سرعة الطلبات" if is_ar else "Order Velocity", f"{kpis.get('Order Velocity', 0)} /Day")
+    c2.metric("إجمالي التكلفة (COGS)" if is_ar else "Total Cost (COGS)", format_currency(kpis.get("Total Cost (COGS)", 0))) # ضفنا دي هنا
+    c3.metric("إجمالي الأرباح" if is_ar else "Total Profit", format_currency(kpis.get("Total Profit", 0)))
+    c4.metric("هامش الربح" if is_ar else "Profit Margin", format_percentage(kpis.get("Profit Margin", 0)))
+
+    # ضفنا صف جديد عشان نسبة التكلفة وسرعة الطلبات
+    st.markdown(f"#### {'📊 الكفاءة التشغيلية' if is_ar else '📊 Operational Efficiency'}")
+    c5, c6, c7, c8 = st.columns(4)
+    c5.metric("نسبة التكلفة للمبيعات" if is_ar else "Cost to Sales Ratio", f"{kpis.get('Cost to Sales Ratio', 0):.1f}%") # السطر الجديد
+    c6.metric("متوسط قيمة الطلب" if is_ar else "Average Order Value", format_currency(kpis.get("Average Order Value", 0)))
+    c7.metric("سرعة الطلبات" if is_ar else "Order Velocity", f"{kpis.get('Order Velocity', 0)} /Day")
+    c8.metric("الطلبات الإجمالية" if is_ar else "Total Orders", f"{kpis.get('Total Orders', 0)}")
 
     st.markdown(f"#### {'⚖️ مؤشرات الضرائب وصافي الدخل' if is_ar else '⚖️ Tax & Net Income'}")
-    c5, c6, c7, c8 = st.columns(4)
-    c5.metric("الربح الصافي (بعد الضريبة)" if is_ar else "Net Profit (After Tax)", format_currency(kpis.get("Net Profit After Tax", 0)))
-    c6.metric("إجمالي الضريبة" if is_ar else "Total VAT", format_currency(kpis.get("Total VAT", 0)))
-    c7.metric("ضريبة الدخل" if is_ar else "Income Tax", format_currency(kpis.get("Total Income Tax", 0)))
-    c8.metric("فواتير مشبوهة" if is_ar else "Tax Suspicious", f"{kpis.get('Tax Suspicious Count', 0)} ⚠️")
+    c9, c10, c11, c12 = st.columns(4)
+    c9.metric("الربح الصافي (بعد الضريبة)" if is_ar else "Net Profit (After Tax)", format_currency(kpis.get("Net Profit After Tax", 0)))
+    c10.metric("إجمالي الضريبة" if is_ar else "Total VAT", format_currency(kpis.get("Total VAT", 0)))
+    c11.metric("ضريبة الدخل" if is_ar else "Income Tax", format_currency(kpis.get("Total Income Tax", 0)))
+    c12.metric("فواتير مشبوهة" if is_ar else "Tax Suspicious", f"{kpis.get('Tax Suspicious Count', 0)} ⚠️")
 
     st.markdown("<br><hr><br>", unsafe_allow_html=True)
 
