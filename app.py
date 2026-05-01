@@ -274,12 +274,24 @@ with t3:
     st.markdown(f"<div class='recovery-banner'>{'🔴 إجمالي النزيف المالي القابل للاسترداد: ' if is_ar else '🔴 Total Recoverable Leakage: '} {format_currency(recovery)}</div>", unsafe_allow_html=True)
     
     if not anomalies.empty:
-        st.markdown(f"#### {'🚨 الإجراءات الإدارية الإلزامية للفواتير الشاذة' if is_ar else '🚨 Mandatory Actions for Broken Invoices'}")
         for idx, row in anomalies.head(15).iterrows():
-            decision_text = get_decisions(row).get("ar" if is_ar else "en", "")
-            st.markdown(f"<div class='decision-card'><b>Invoice: {row.get('Order ID', 'N/A')}</b> | <b style='color:#ef4444'>Loss: {format_currency(abs(row.get('Profit', 0)))}</b> <br><span style='color:#CBD5E1'>Decision: {decision_text}</span></div>", unsafe_allow_html=True)
-    
-    st.markdown("---")
+            d_dict = get_decisions(row)
+            d_text = d_dict.get("ar" if is_ar else "en", "")
+            p_val = row.get('Profit', 0)
+            
+            # تحديد اللون والمسمى بناء على الربح الفعلي
+            if p_val < 0:
+                label, color = ("Loss" if not is_ar else "خسارة", "#EF4444")
+            else:
+                label, color = ("Profit" if not is_ar else "ربح استثنائي", "#10B981")
+                
+            st.markdown(f"""
+            <div class='decision-card' style='border-left: 6px solid {color}'>
+                <b>Invoice: {row.get('Order ID', 'N/A')}</b> | 
+                <b style='color:{color}'>{label}: {format_currency(abs(p_val))}</b> <br>
+                <span style='color:#CBD5E1'>Decision: {d_text}</span>
+            </div>
+            """, unsafe_allow_html=True)
     # --- في ملف app.py داخل تاب 3 ---
     if st.button("📑 تحميل التقرير التنفيذي (PDF)" if is_ar else "📑 Download Executive PDF", use_container_width=True):
         with st.spinner("جاري تجهيز القرارات الإدارية..." if is_ar else "Compiling Administrative Decisions..."):
