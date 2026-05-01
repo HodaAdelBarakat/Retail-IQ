@@ -56,7 +56,6 @@ def create_pdf_report(kpis, executive_orders_en, financial_impact, anomalies, fo
     pdf.set_font("Helvetica", "B", 10)
     pdf.set_text_color(*BLACK)
     
-    # الصف الأول: المبيعات - التكلفة - الربح الإجمالي
     pdf.cell(col_width, 7, "Total Sales:")
     pdf.cell(col_width, 7, "Total Cost (COGS):")
     pdf.cell(col_width, 7, "Total Gross Profit:", ln=1)
@@ -71,7 +70,6 @@ def create_pdf_report(kpis, executive_orders_en, financial_impact, anomalies, fo
     pdf.cell(col_width, 7, f"${t_profit:,.2f}", ln=1)
     pdf.ln(3)
 
-    # الصف الثاني: الهامش - صافي الربح - النزيف المالي
     pdf.set_font("Helvetica", "B", 10)
     pdf.cell(col_width, 7, "Profit Margin:")
     pdf.cell(col_width, 7, "Net Profit (After Tax):")
@@ -81,10 +79,10 @@ def create_pdf_report(kpis, executive_orders_en, financial_impact, anomalies, fo
     pdf.cell(col_width, 7, f"{kpis.get('Profit Margin', 0):.2%}")
     pdf.cell(col_width, 7, f"${kpis.get('Net Profit After Tax', 0):,.2f}")
     
-    pdf.set_text_color(*RED) # تلوين النزيف بالأحمر
+    pdf.set_text_color(*RED)
     pdf.set_font("Helvetica", "B", 10)
     pdf.cell(col_width, 7, f"${financial_impact:,.2f}", ln=1)
-    pdf.set_text_color(*BLACK) # إرجاع اللون الأسود
+    pdf.set_text_color(*BLACK)
     pdf.ln(5)
 
     # --------------------------------------------------------
@@ -152,7 +150,11 @@ def create_pdf_report(kpis, executive_orders_en, financial_impact, anomalies, fo
     # --------------------------------------------------------
     # 4. Administrative Action Plan
     # --------------------------------------------------------
-   pdf.add_page()
+    
+    # 🔥 الحل السحري للصفحة الفاضية (لو المؤشر نزل تحت 220 افتح صفحة جديدة)
+    if pdf.get_y() > 220:
+        pdf.add_page()
+        
     pdf.section_title("4. Administrative Action Plan")
     
     pdf.set_font("Helvetica", "B", 11)
@@ -180,7 +182,7 @@ def create_pdf_report(kpis, executive_orders_en, financial_impact, anomalies, fo
             dec_text = clean_text(dec)
             dec_lower = dec_text.lower()
             
-            # 🔥 التلوين الديناميكي للقرارات بناءً على الحالة (خسارة/ربح)
+            # التلوين الديناميكي
             if any(word in dec_lower for word in ["loss", "leakage", "halt", "revoke", "dead", "trap", "phantom", "severe"]):
                 pdf.set_text_color(*RED)
             elif any(word in dec_lower for word in ["growth", "healthy", "excellent"]):
@@ -195,7 +197,7 @@ def create_pdf_report(kpis, executive_orders_en, financial_impact, anomalies, fo
         pdf.cell(190, 8, "No specific invoice-level interventions required at this stage.", ln=1)
 
     # --------------------------------------------------------
-    # الحل السحري للإيرور
+    # النهاية
     # --------------------------------------------------------
     output = pdf.output(dest='S')
     if isinstance(output, (bytes, bytearray)):
